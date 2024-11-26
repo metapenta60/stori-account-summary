@@ -1,4 +1,4 @@
-package sendemail
+package services
 
 import (
 	model "stori-account-summary/model"
@@ -52,13 +52,14 @@ func (es EmailSender) body(config model.EmailConfig) model.SendEmailRequest {
 			},
 		},
 		DynamicTemplateData: model.DynamicTemplateData{
-			TotalBalance:  config.Report.Sum,
-			AverageDebit:  config.Report.AvgCredit,
-			AverageCredit: config.Report.AvgCredit,
-			SenderName:    senderName,
-			SenderAddress: senderAddress,
-			SenderCity:    senderCity,
-			SenderState:   senderState,
+			TotalBalance:         config.Report.Sum,
+			AverageDebit:         config.Report.AvgDebit,
+			AverageCredit:        config.Report.AvgCredit,
+			SenderName:           senderName,
+			SenderAddress:        senderAddress,
+			SenderCity:           senderCity,
+			SenderState:          senderState,
+			TransactionsPerMonth: config.Report.TransactionPerMonth(),
 		},
 		TemplateID: config.TemplateID,
 	}

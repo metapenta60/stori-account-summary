@@ -1,4 +1,4 @@
-package sendemail
+package pkg
 
 import (
 	"encoding/json"

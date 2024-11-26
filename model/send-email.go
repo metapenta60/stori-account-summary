@@ -1,12 +1,5 @@
 package model
 
-type AccountReport struct {
-	Sum                  float64
-	TransactionsPerMonth map[string]int
-	AvgDebit             float64
-	AvgCredit            float64
-}
-
 type SendEmailRequest struct {
 	From                Email               `json:"from"`
 	Personalizations    Personalizations    `json:"Personalizations"`
