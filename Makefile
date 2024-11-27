@@ -16,5 +16,6 @@ package: build
 	zip bootstrap.zip bootstrap
 
 generate-mocks:
-	mockgen -package=mocks stori-account-summary/services SendGridClient > mocks/SendGridClient.go && \
-	mockgen -package=mocks stori-account-summary/services S3Client > mocks/S3Client.go
+	mockgen -package=mocks stori-account-summary/services SendGridClient > mocks/sendGridClient.go && \
+	mockgen -package=mocks stori-account-summary/services S3Client > mocks/s3Client.go && \
+	mockgen -package=mocks stori-account-summary/db DynamoClient > mocks/dynamoClient.go

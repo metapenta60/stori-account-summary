@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"stori-account-summary/db"
 	"stori-account-summary/model"
 	"stori-account-summary/pkg"
 	"stori-account-summary/services"
@@ -12,6 +13,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
@@ -32,6 +34,14 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 		log.Printf("Failed to download file, %v", err)
 		return err
 	}
+
+	db, err := initDB(ctx)
+	if err != nil {
+		log.Printf("Failed to create DynamoDB client, %v", err)
+		return err
+	}
+
+	db.AddTransactions(rows)
 
 	reportService := services.NewReportService(rows)
 	report := reportService.AnalyseAccount()
@@ -77,6 +87,20 @@ func getEmailConfiguration(report model.AccountReport) model.EmailConfig {
 		Report:     report,
 	}
 }
+
+func initDB(ctx context.Context) (db.Db, error) {
+	cfg, err := config.LoadDefaultConfig(ctx)
+	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
+	if err != nil {
+		log.Printf("Failed to load configuration, %v", err)
+		return db.Db{}, err
+	}
+
+	client := dynamodb.NewFromConfig(cfg)
+
+	return db.New(ctx, tableName, client), nil
+}
+
 func main() {
 	lambda.Start(handler)
 }
