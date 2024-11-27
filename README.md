@@ -4,6 +4,7 @@ This repository contains the code to generate account summaries from transaction
 
 ## Table of Contents
 
+- [Project structure](#project-structure)
 - [Dependencies](#dependencies)
 - [Configuration](#configuration)
 - [Environment Variables](#environment-variables)
