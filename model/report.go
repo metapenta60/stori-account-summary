@@ -73,12 +73,17 @@ var mapToMonth = map[string]string{
 
 func (ar AccountReport) TransactionPerMonth() []string {
 	transactions := make([]string, 0)
-	for k, v := range ar.TransactionsPerMonth {
-		month := mapToMonth[k]
-		count := v
+	for i := 1; i <= 12; i++ {
+		k := fmt.Sprintf("%d", i)
+		v := ar.TransactionsPerMonth[k]
 
-		transactionsMessage := fmt.Sprintf("Number of transactions in %s: %d", month, count)
-		transactions = append(transactions, transactionsMessage)
+		if v > 0 {
+			month := mapToMonth[k]
+			count := v
+
+			transactionsMessage := fmt.Sprintf("Number of transactions in %s: %d", month, count)
+			transactions = append(transactions, transactionsMessage)
+		}
 	}
 
 	return transactions
