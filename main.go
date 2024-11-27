@@ -15,18 +15,19 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+const host = "https://api.sendgrid.com"
+
 func handler(ctx context.Context, s3Event events.S3Event) error {
-	cfg, err := config.LoadDefaultConfig(ctx)
-
+	client, err := initS3Client(ctx)
 	if err != nil {
-		log.Printf("Failed to load configuration, %v", err)
-		return err
-	}
+		log.Printf("Failed to create S3 client, %v", err)
 
-	client := s3.NewFromConfig(cfg)
+		return nil
+	}
 
 	downloader := services.NewDownloader(ctx, s3Event, client)
 	rows, err := downloader.DownloadFile(ctx)
+
 	if err != nil {
 		log.Printf("Failed to download file, %v", err)
 		return err
@@ -35,11 +36,7 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 	reportService := services.NewReportService(rows)
 	report := reportService.AnalyseAccount()
 
-	const host = "https://api.sendgrid.com"
-	apiKey := os.Getenv("SENDGRID_API_KEY")
-
-	sendGridClient := pkg.NewSendGridClient(host, apiKey, "v25a07@gmail.com")
-
+	sendGridClient := initSendGridClient()
 	emailSender := services.NewEmailSender(sendGridClient)
 	emailConfig := model.EmailConfig{
 		To:     "v25a07@gmail.com",
@@ -52,6 +49,23 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 	}
 
 	return nil
+}
+
+func initS3Client(ctx context.Context) (*s3.Client, error) {
+	cfg, err := config.LoadDefaultConfig(ctx)
+
+	if err != nil {
+		log.Printf("Failed to load configuration, %v", err)
+		return nil, err
+	}
+
+	return s3.NewFromConfig(cfg), nil
+}
+
+func initSendGridClient() pkg.SendGridClient {
+	apiKey := os.Getenv("SENDGRID_API_KEY")
+
+	return pkg.NewSendGridClient(host, apiKey, "v25a07@gmail.com")
 }
 
 func main() {

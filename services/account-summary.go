@@ -35,7 +35,7 @@ func (as accountSummaryService) createEmptyReport() model.AccountReport {
 		AvgCredit: 0.0,
 
 		NumCreditTransaction: 0.0,
-		NumDebutTransaction:  0.0,
+		NumDebitTransaction:  0.0,
 	}
 }
 

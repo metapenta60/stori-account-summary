@@ -12,21 +12,21 @@ const (
 	sendEmailURL = "/v3/mail/send"
 )
 
-type sendGridClient struct {
+type SendGridClient struct {
 	ProviderHost string
 	ApiKey       string
 	EmailFrom    string
 }
 
-func NewSendGridClient(providerHost, apiKey, emailFrom string) sendGridClient {
-	return sendGridClient{
+func NewSendGridClient(providerHost, apiKey, emailFrom string) SendGridClient {
+	return SendGridClient{
 		ProviderHost: providerHost,
 		ApiKey:       apiKey,
 		EmailFrom:    emailFrom,
 	}
 }
 
-func (sgc sendGridClient) Send(payload model.EmailPayload) error {
+func (sgc SendGridClient) Send(payload model.EmailPayload) error {
 	request, err := sgc.request(payload)
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (sgc sendGridClient) Send(payload model.EmailPayload) error {
 	return nil
 }
 
-func (sgc sendGridClient) request(mp model.EmailPayload) (*rest.Request, error) {
+func (sgc SendGridClient) request(mp model.EmailPayload) (*rest.Request, error) {
 	request := sendgrid.GetRequest(sgc.ApiKey, sendEmailURL, sgc.ProviderHost)
 	request.Method = "POST"
 	jsonData, err := json.Marshal(mp.Payload)

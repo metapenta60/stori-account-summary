@@ -22,7 +22,7 @@ type AccountReport struct {
 	AvgCredit            float64
 
 	NumCreditTransaction float64
-	NumDebutTransaction  float64
+	NumDebitTransaction  float64
 
 	TotalCredit float64
 	TotalDebit  float64
@@ -39,12 +39,12 @@ func (ar *AccountReport) AddTransaction(transaction float64) {
 		ar.NumCreditTransaction++
 	} else {
 		ar.TotalDebit += transaction
-		ar.NumDebutTransaction++
+		ar.NumDebitTransaction++
 	}
 }
 
 func (ar *AccountReport) UpdateAverageDebitAndCredit() {
-	ar.AvgDebit = calculateAverage(ar.TotalDebit, ar.NumDebutTransaction)
+	ar.AvgDebit = calculateAverage(ar.TotalDebit, ar.NumDebitTransaction)
 	ar.AvgCredit = calculateAverage(ar.TotalCredit, ar.NumCreditTransaction)
 }
 
