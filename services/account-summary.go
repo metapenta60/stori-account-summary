@@ -14,7 +14,7 @@ func NewReportService(rows model.Rows) accountSummaryService {
 	}
 }
 
-func (rs accountSummaryService) createEmptyReport() model.AccountReport {
+func (as accountSummaryService) createEmptyReport() model.AccountReport {
 	return model.AccountReport{
 		Sum: 0.0,
 		TransactionsPerMonth: map[string]int{
@@ -39,8 +39,8 @@ func (rs accountSummaryService) createEmptyReport() model.AccountReport {
 	}
 }
 
-func (ass accountSummaryService) analyseAccount(rows model.Rows) model.AccountReport {
-	report := ass.createEmptyReport()
+func (as accountSummaryService) analyseAccount(rows model.Rows) model.AccountReport {
+	report := as.createEmptyReport()
 
 	for _, row := range rows {
 		report.AddTransaction(row.Transaction)

@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/csv"
 	"io"
-	"log"
 	"stori-account-summary/model"
 	"strconv"
 	"strings"
@@ -31,16 +30,7 @@ func NewDownloader(ctx context.Context, s3Event events.S3Event, client S3Client)
 }
 
 func (d *Downloader) DownloadFile(ctx context.Context) (model.Rows, error) {
-	record := d.S3Event.Records[0]
-	bucket := record.S3.Bucket.Name
-	key := record.S3.Object.Key
-
-	input := s3.GetObjectInput{
-		Bucket: &bucket,
-		Key:    &key,
-	}
-
-	output, err := d.Client.GetObject(ctx, &input)
+	output, err := d.Client.GetObject(ctx, d.createInput())
 	if err != nil {
 		return model.Rows{}, err
 	}
@@ -49,40 +39,77 @@ func (d *Downloader) DownloadFile(ctx context.Context) (model.Rows, error) {
 	return parseFile(output.Body)
 }
 
+func (d *Downloader) createInput() *s3.GetObjectInput {
+	record := d.S3Event.Records[0]
+	bucket := record.S3.Bucket.Name
+	key := record.S3.Object.Key
+
+	return &s3.GetObjectInput{
+		Bucket: &bucket,
+		Key:    &key,
+	}
+}
+
 func parseFile(ioReader io.Reader) (model.Rows, error) {
-	buf := new(bytes.Buffer)
-	_, err := buf.ReadFrom(ioReader)
-
-	if err != nil {
-		return model.Rows{}, err
-	}
-
-	content := buf.String()
-	csvReader := csv.NewReader(strings.NewReader(content))
-	records, err := csvReader.ReadAll()
-	if err != nil {
-		log.Printf("Unable to parse file as CSV, %v", err)
-		return model.Rows{}, err
-	}
-
 	rows := model.Rows{}
-	for _, record := range records {
-		dateArray := strings.Split(record[1], "/")
-		value, err := strconv.ParseFloat(record[0], 64)
-		if err != nil {
-			return model.Rows{}, err
-		}
 
-		row := model.Row{
-			Transaction: value,
-			Date: model.Date{
-				Day:   dateArray[1],
-				Month: dateArray[0],
-			},
-		}
+	content, err := getStringContent(ioReader)
+	if err != nil {
+		return model.Rows{}, err
+	}
 
+	records, err := getRows(content)
+	if err != nil {
+		return model.Rows{}, err
+	}
+
+	for i := 1; i < len(records); i++ {
+		row := createRow(records[i])
 		rows = append(rows, row)
 	}
 
 	return rows, nil
+}
+
+func getStringContent(ioReader io.Reader) (string, error) {
+	buf := new(bytes.Buffer)
+	_, err := buf.ReadFrom(ioReader)
+
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+}
+
+func getRows(file string) ([][]string, error) {
+	csvReader := csv.NewReader(strings.NewReader(file))
+	records, err := csvReader.ReadAll()
+	if err != nil {
+		return [][]string{}, err
+	}
+
+	return records, nil
+}
+
+func getDate(date string) model.Date {
+	dateArray := strings.Split(date, "/")
+	return model.Date{
+		Day:   dateArray[1],
+		Month: dateArray[0],
+	}
+}
+
+func createRow(record []string) model.Row {
+	date := getDate(record[1])
+	value, err := strconv.ParseFloat(record[2], 64)
+	if err != nil {
+		return model.Row{}
+	}
+
+	return model.Row{
+		Id:          record[0],
+		Transaction: value,
+		Date:        date,
+	}
 }

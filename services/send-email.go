@@ -46,21 +46,24 @@ func (es EmailSender) body(config model.EmailConfig) model.SendEmailRequest {
 		From: model.Email{
 			Email: es.From,
 		},
-		Personalizations: model.Personalizations{
-			To: model.Email{
-				Email: config.To,
+		Personalizations: []model.Personalizations{{
+			To: []model.Email{
+				{
+					Email: config.To,
+				},
 			},
-		},
-		DynamicTemplateData: model.DynamicTemplateData{
-			TotalBalance:         config.Report.Sum,
-			AverageDebit:         config.Report.AvgDebit,
-			AverageCredit:        config.Report.AvgCredit,
-			SenderName:           senderName,
-			SenderAddress:        senderAddress,
-			SenderCity:           senderCity,
-			SenderState:          senderState,
-			TransactionsPerMonth: config.Report.TransactionPerMonth(),
-		},
+			DynamicTemplateData: model.DynamicTemplateData{
+				TotalBalance:         config.Report.Sum,
+				AverageDebit:         config.Report.AvgDebit,
+				AverageCredit:        config.Report.AvgCredit,
+				SenderName:           senderName,
+				SenderAddress:        senderAddress,
+				SenderCity:           senderCity,
+				SenderState:          senderState,
+				TransactionsPerMonth: config.Report.TransactionPerMonth(),
+			},
+		}},
+
 		TemplateID: config.TemplateID,
 	}
 }

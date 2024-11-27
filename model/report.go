@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 type Rows []Row
 
 type Row struct {
@@ -69,13 +71,14 @@ var mapToMonth = map[string]string{
 	"12": "December",
 }
 
-func (ar AccountReport) TransactionPerMonth() []Transaction {
-	transactions := make([]Transaction, 0)
+func (ar AccountReport) TransactionPerMonth() []string {
+	transactions := make([]string, 0)
 	for k, v := range ar.TransactionsPerMonth {
-		transactions = append(transactions, Transaction{
-			Month: mapToMonth[k],
-			Count: v,
-		})
+		month := mapToMonth[k]
+		count := v
+
+		transactionsMessage := fmt.Sprintf("Number of transactions in %s: %d", month, count)
+		transactions = append(transactions, transactionsMessage)
 	}
 
 	return transactions

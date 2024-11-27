@@ -24,25 +24,26 @@ func TestEmailSender_Send(t *testing.T) {
 		From: model.Email{
 			Email: emailSender.From,
 		},
-		Personalizations: model.Personalizations{
-			To: model.Email{
+		Personalizations: []model.Personalizations{{
+			To: []model.Email{{
 				Email: "recipient@example.com",
+			}},
+			DynamicTemplateData: model.DynamicTemplateData{
+				TotalBalance: 12345.67,
+				TransactionsPerMonth: []string{
+					"Number of transactions in January: 10",
+					"Number of transactions in February: 15",
+					"Number of transactions in March: 8",
+				},
+				AverageDebit:  500.75,
+				AverageCredit: -650.90,
+				SenderName:    "Stori",
+				SenderAddress: "Calle 81 # 11 - 08",
+				SenderCity:    "Bogota",
+				SenderState:   "Colombia",
 			},
-		},
-		DynamicTemplateData: model.DynamicTemplateData{
-			TotalBalance: 12345.67,
-			TransactionsPerMonth: []model.Transaction{
-				{Month: "January", Count: 10},
-				{Month: "February", Count: 15},
-				{Month: "March", Count: 8},
-			},
-			AverageDebit:  500.75,
-			AverageCredit: -650.90,
-			SenderName:    "Stori",
-			SenderAddress: "Calle 81 # 11 - 08",
-			SenderCity:    "Bogota",
-			SenderState:   "Colombia",
-		},
+		}},
+
 		TemplateID: "d-12345abcde67890fghij12345klmn67890",
 	}
 
