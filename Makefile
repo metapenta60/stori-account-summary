@@ -1,3 +1,5 @@
+.PHONY: dependencies run build package generate-mocks
+
 dependencies:
 	go mod tidy && go mod vendor
 
@@ -10,5 +12,6 @@ build:
 package: build
 	zip bootstrap.zip bootstrap
 
-mock:
-	mockgen stori-account-summary/services/send-email SendGridClient > mocks/send-grid-client.go
+generate-mocks:
+	mockgen -package=mocks stori-account-summary/services SendGridClient > mocks/SendGridClient.go && \
+	mockgen -package=mocks stori-account-summary/services S3Client > mocks/S3Client.go
