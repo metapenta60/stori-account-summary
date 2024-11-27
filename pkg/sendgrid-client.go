@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"encoding/json"
+	"log"
 	model "stori-account-summary/model"
 
 	"github.com/sendgrid/rest"
@@ -18,11 +19,10 @@ type SendGridClient struct {
 	EmailFrom    string
 }
 
-func NewSendGridClient(providerHost, apiKey, emailFrom string) SendGridClient {
+func NewSendGridClient(providerHost, apiKey string) SendGridClient {
 	return SendGridClient{
 		ProviderHost: providerHost,
 		ApiKey:       apiKey,
-		EmailFrom:    emailFrom,
 	}
 }
 
@@ -32,7 +32,9 @@ func (sgc SendGridClient) Send(payload model.EmailPayload) error {
 		return err
 	}
 
-	_, err = sendgrid.API(*request)
+	res, err := sendgrid.API(*request)
+
+	log.Print(res)
 	if err != nil {
 		return err
 	}

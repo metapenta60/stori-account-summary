@@ -36,9 +36,7 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 	reportService := services.NewReportService(rows)
 	report := reportService.AnalyseAccount()
 
-	sendGridClient := initSendGridClient()
-	emailSender := services.NewEmailSender(sendGridClient)
-
+	emailSender := initEmailSender()
 	err = emailSender.SendMail(getEmailConfiguration(report))
 	if err != nil {
 		log.Printf("Failed to send email, %v", err)
@@ -59,11 +57,14 @@ func initS3Client(ctx context.Context) (*s3.Client, error) {
 	return s3.NewFromConfig(cfg), nil
 }
 
-func initSendGridClient() pkg.SendGridClient {
+func initEmailSender() services.EmailSender {
 	apiKey := os.Getenv("SENDGRID_API_KEY")
 	emailFrom := os.Getenv("EMAIL_FROM")
 
-	return pkg.NewSendGridClient(host, apiKey, emailFrom)
+	client := pkg.NewSendGridClient(host, apiKey)
+	emailSender := services.NewEmailSender(client, emailFrom)
+
+	return emailSender
 }
 
 func getEmailConfiguration(report model.AccountReport) model.EmailConfig {
