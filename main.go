@@ -38,11 +38,8 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 
 	sendGridClient := initSendGridClient()
 	emailSender := services.NewEmailSender(sendGridClient)
-	emailConfig := model.EmailConfig{
-		To:     "v25a07@gmail.com",
-		Report: report,
-	}
-	err = emailSender.SendMail(emailConfig)
+
+	err = emailSender.SendMail(getEmailConfiguration(report))
 	if err != nil {
 		log.Printf("Failed to send email, %v", err)
 		return err
@@ -64,10 +61,21 @@ func initS3Client(ctx context.Context) (*s3.Client, error) {
 
 func initSendGridClient() pkg.SendGridClient {
 	apiKey := os.Getenv("SENDGRID_API_KEY")
+	emailFrom := os.Getenv("EMAIL_FROM")
 
-	return pkg.NewSendGridClient(host, apiKey, "v25a07@gmail.com")
+	return pkg.NewSendGridClient(host, apiKey, emailFrom)
 }
 
+func getEmailConfiguration(report model.AccountReport) model.EmailConfig {
+	templateID := os.Getenv("SENDGRID_TEMPLATE_ID")
+	emailTo := os.Getenv("EMAIL_TO")
+
+	return model.EmailConfig{
+		TemplateID: templateID,
+		To:         emailTo,
+		Report:     report,
+	}
+}
 func main() {
 	lambda.Start(handler)
 }
