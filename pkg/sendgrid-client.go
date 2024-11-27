@@ -18,6 +18,14 @@ type sendGridClient struct {
 	EmailFrom    string
 }
 
+func NewSendGridClient(providerHost, apiKey, emailFrom string) sendGridClient {
+	return sendGridClient{
+		ProviderHost: providerHost,
+		ApiKey:       apiKey,
+		EmailFrom:    emailFrom,
+	}
+}
+
 func (sgc sendGridClient) Send(payload model.EmailPayload) error {
 	request, err := sgc.request(payload)
 	if err != nil {

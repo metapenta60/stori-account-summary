@@ -6,6 +6,9 @@ dependencies:
 run:
 	go run main.go
 
+tests:
+	go test -v ./...
+
 build:
 	GOOS=linux go build -o bootstrap main.go
 

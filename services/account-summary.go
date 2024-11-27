@@ -39,10 +39,10 @@ func (as accountSummaryService) createEmptyReport() model.AccountReport {
 	}
 }
 
-func (as accountSummaryService) analyseAccount(rows model.Rows) model.AccountReport {
+func (as accountSummaryService) AnalyseAccount() model.AccountReport {
 	report := as.createEmptyReport()
 
-	for _, row := range rows {
+	for _, row := range as.rows {
 		report.AddTransaction(row.Transaction)
 		report.IncreaseTransactionCount(row.Date.Month)
 	}

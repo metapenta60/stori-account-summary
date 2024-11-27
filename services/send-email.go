@@ -13,7 +13,7 @@ type EmailSender struct {
 	From           string
 }
 
-func New(client SendGridClient) EmailSender {
+func NewEmailSender(client SendGridClient) EmailSender {
 	return EmailSender{
 		SendGridClient: client,
 	}
